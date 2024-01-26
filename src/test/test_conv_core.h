@@ -622,6 +622,17 @@ TEST conv_core_FormatAsciiResult_four_wide(void)
 	PASS();
 }
 
+TEST conv_core_FormatAsciiResult_quotes(void)
+{
+	uint8_t inputData[] = { 0x22 };
+	uint8_t outputData[ASCII_RESULT_WIDTH] = {};
+	outcome_state outcomeState = FormatAsciiResult(inputData, 1, outputData);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("\\\"\\\"\\\"", outputData);
+	PASS();
+}
+
 
 // MARK: FormatUTF8Result
 
@@ -690,6 +701,17 @@ TEST conv_core_FormatUTF8Result_multichar(void)
 	PASS();
 }
 
+TEST conv_core_FormatUTF8Result_quotes(void)
+{
+	uint8_t inputData[] = { 0x22 };
+	uint8_t outputData[UTF8_RESULT_WIDTH] = {};
+	outcome_state outcomeState = FormatUTF8Result(inputData, 1, outputData);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("\\\"\\\"\\\"", outputData);
+	PASS();
+}
+
 
 // MARK: Suite
 
@@ -748,6 +770,7 @@ SUITE(conv_core)
 	RUN_TEST(conv_core_FormatAsciiResult_not_ascii_byte);
 	RUN_TEST(conv_core_FormatAsciiResult_one_wide);
 	RUN_TEST(conv_core_FormatAsciiResult_four_wide);
+	RUN_TEST(conv_core_FormatAsciiResult_quotes);
 
 	RUN_TEST(conv_core_FormatUTF8Result_not_utf8_byte);
 	RUN_TEST(conv_core_FormatUTF8Result_one_wide);
@@ -755,6 +778,7 @@ SUITE(conv_core)
 	RUN_TEST(conv_core_FormatUTF8Result_three_wide);
 	RUN_TEST(conv_core_FormatUTF8Result_four_wide);
 	RUN_TEST(conv_core_FormatUTF8Result_multichar);
+	RUN_TEST(conv_core_FormatUTF8Result_quotes);
 
 	RUN_TEST(conv_core_FormatHexResult_direct);
 	RUN_TEST(conv_core_FormatHexResult_simple);

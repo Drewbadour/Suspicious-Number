@@ -340,6 +340,12 @@ outcome_state FormatAsciiResult(uint8_t* inputData, uint32_t inputDataCount, uin
 
 	for (uint32_t inputIndex = 0; inputIndex < inputDataCount; ++inputIndex, ++outputIndex)
 	{
+		if (inputData[inputIndex] == '"')
+		{
+			outputData[outputIndex] = '\\';
+			++outputIndex;
+		}
+
 		if ((inputData[inputIndex] >= ' ') && (inputData[inputIndex] <= '~'))
 		{
 			outputData[outputIndex] = inputData[inputIndex];
@@ -364,6 +370,12 @@ outcome_state FormatUTF8Result(uint8_t* inputData, uint32_t inputDataCount, uint
 
 	for (uint32_t inputIndex = 0; inputIndex < inputDataCount;)
 	{
+		if (inputData[inputIndex] == '"')
+		{
+			outputData[outputIndex] = '\\';
+			++outputIndex;
+		}
+
 		if ((inputData[inputIndex] >= ' ') && (inputData[inputIndex] <= '~'))
 		{
 			CopyMemory(outputData + outputIndex, inputData + inputIndex, 1);
