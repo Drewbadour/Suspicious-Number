@@ -530,6 +530,11 @@ outcome_state FormatAndPrintOutputs(uint8_t* parsedInput, uint32_t parsedNumByte
 
 	PrintRequest(responses, numResponses);
 
+	if (numResponses > 0)
+	{
+		outcomeState = Outcome_Valid;
+	}
+
 	return outcomeState;
 }
 
