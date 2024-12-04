@@ -474,6 +474,19 @@ TEST conv_core_FormatSignedResult_unsigned_eight_wide(void)
 	PASS();
 }
 
+TEST conv_core_FormatSignedResult_leading_negative_at_first_comma(void)
+{
+	uint8_t inputData[] = { 0x00, 0xFF };
+	uint8_t outputData[DECIMAL_RESULT_WIDTH] = {};
+	uint8_t outputDataFormatted[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
+	outcome_state outcomeState = FormatSignedResult(inputData, 2, outputData, outputDataFormatted);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("-256", outputData);
+	ASSERT_STR_EQ("-256", outputDataFormatted);
+	PASS();
+}
+
 TEST conv_core_FormatSignedResult_leading_negative_at_comma(void)
 {
 	uint8_t inputData[] = { 0xFF, 0xFF, 0xF3, 0xFF };
@@ -761,6 +774,7 @@ SUITE(conv_core)
 	RUN_TEST(conv_core_FormatSignedResult_max_eight_wide);
 	RUN_TEST(conv_core_FormatSignedResult_min_eight_wide);
 	RUN_TEST(conv_core_FormatSignedResult_unsigned_eight_wide);
+	RUN_TEST(conv_core_FormatSignedResult_leading_negative_at_first_comma);
 	RUN_TEST(conv_core_FormatSignedResult_leading_negative_at_comma);
 
 	RUN_TEST(conv_core_HexCharForNum_int);

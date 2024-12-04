@@ -13,10 +13,11 @@
 	- Decimal
 	- Hex
 	- Binary
+	- ASCII
+	- UTF8
 
 ### Future Improvements
 
-- Unicode support
 - Arbitrary length decimal numbers. They are currently limited to `int64_t`/`uint64_t` sizes.
 
 ## Building
