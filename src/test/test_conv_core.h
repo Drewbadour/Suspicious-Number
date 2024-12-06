@@ -581,7 +581,7 @@ TEST conv_core_FormatAsciiResult_not_ascii_byte(void)
 {
 	uint8_t inputData[] = { 0x10 };
 	uint8_t outputData[STRING_RESULT_WIDTH] = {};
-	outcome_state outcomeState = FormatAsciiResult(inputData, 4, outputData);
+	outcome_state outcomeState = FormatAsciiResult(inputData, 1, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Invalid, outcomeState, outcome_stateToString);
 	PASS();
@@ -606,6 +606,74 @@ TEST conv_core_FormatAsciiResult_four_wide(void)
 
 	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
 	ASSERT_STR_EQ("\\\"ABCD\\\"", outputData);
+	PASS();
+}
+
+
+// MARK: FormatUTF8Result
+
+TEST conv_core_FormatUTF8Result_not_utf8_byte(void)
+{
+	uint8_t inputData[] = { 0x10 };
+	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	outcome_state outcomeState = FormatUTF8Result(inputData, 1, outputData);
+
+	ASSERT_ENUM_EQ(Outcome_Invalid, outcomeState, outcome_stateToString);
+	PASS();
+}
+
+TEST conv_core_FormatUTF8Result_one_wide(void)
+{
+	uint8_t inputData[] = { 'Z' };
+	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	outcome_state outcomeState = FormatUTF8Result(inputData, 1, outputData);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("\\\"Z\\\"", outputData);
+	PASS();
+}
+
+TEST conv_core_FormatUTF8Result_two_wide(void)
+{
+	uint8_t inputData[] = { 0xC2, 0xA9 };
+	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	outcome_state outcomeState = FormatUTF8Result(inputData, 2, outputData);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("\\\"©\\\"", outputData);
+	PASS();
+}
+
+TEST conv_core_FormatUTF8Result_three_wide(void)
+{
+	uint8_t inputData[] = { 0xEF, 0xA5, 0x80 };
+	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	outcome_state outcomeState = FormatUTF8Result(inputData, 3, outputData);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("\\\"鹿\\\"", outputData);
+	PASS();
+}
+
+TEST conv_core_FormatUTF8Result_four_wide(void)
+{
+	uint8_t inputData[] = { 0xF0, 0x90, 0x8C, 0xB8 };
+	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	outcome_state outcomeState = FormatUTF8Result(inputData, 4, outputData);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("\\\"𐌸\\\"", outputData);
+	PASS();
+}
+
+TEST conv_core_FormatUTF8Result_multichar(void)
+{
+	uint8_t inputData[] = { 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF };
+	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	outcome_state outcomeState = FormatUTF8Result(inputData, 15, outputData);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("\\\"こんにちは\\\"", outputData);
 	PASS();
 }
 
@@ -666,6 +734,13 @@ SUITE(conv_core)
 	RUN_TEST(conv_core_FormatAsciiResult_not_ascii_byte);
 	RUN_TEST(conv_core_FormatAsciiResult_one_wide);
 	RUN_TEST(conv_core_FormatAsciiResult_four_wide);
+
+	RUN_TEST(conv_core_FormatUTF8Result_not_utf8_byte);
+	RUN_TEST(conv_core_FormatUTF8Result_one_wide);
+	RUN_TEST(conv_core_FormatUTF8Result_two_wide);
+	RUN_TEST(conv_core_FormatUTF8Result_three_wide);
+	RUN_TEST(conv_core_FormatUTF8Result_four_wide);
+	RUN_TEST(conv_core_FormatUTF8Result_multichar);
 
 	RUN_TEST(conv_core_FormatHexResult_direct);
 	RUN_TEST(conv_core_FormatHexResult_simple);
