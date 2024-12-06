@@ -149,7 +149,7 @@ link: unlink release
 ### HELP ###
 help:
 	@echo "usage: make [$(COLOR_INFO)target$(COLOR_RESET)]"
-	@echo "\t$(COLOR_INFO)build$(COLOR_RESET) - Compile all binaries in a debug build for the local architecture"
+	@echo "\t$(COLOR_INFO)debug$(COLOR_RESET) - Compile all binaries in a debug build for the local architecture"
 	@echo "\t$(COLOR_INFO)test$(COLOR_RESET) - Compile the unit tests for the local architecture"
 	@echo "\t$(COLOR_INFO)release$(COLOR_RESET) - Compile all binaries in a release build for the local architecture"
 	@echo "\t$(COLOR_INFO)package$(COLOR_RESET) - Create a universal $(WORKFLOW_NAME) for distribution"
