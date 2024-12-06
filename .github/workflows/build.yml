@@ -2,9 +2,20 @@ name: Build
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches:
+      - main
+      - workflow-test
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - '.github/workflows/build.yml'
   pull_request:
-    branches: [ $default-branch ]
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - '.github/workflows/build.yml'
 
 jobs:
   build:
