@@ -25,11 +25,11 @@
 	<key>createdby</key>
 	<string>Drew Mills</string>
 	<key>description</key>
-	<string>An Alfred Workflow to do various number conversions</string>
+	<string>Suspicious Number is an Alfred.app workflow that can be used to convert numbers from one base to another. Its primary goal is to allow you to take a random number you've found in a memory register and determine what that memory might refer to.</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>Drew's Number Format Converter</string>
+	<string>Suspicious Number</string>
 	<key>objects</key>
 	<array>
 		<dict>
