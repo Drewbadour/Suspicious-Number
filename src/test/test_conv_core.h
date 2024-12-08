@@ -108,7 +108,7 @@ TEST conv_core_AddCommasToDecimalResult_one_wide(void)
 {
 	uint8_t unformattedData[] = "7";
 	uint8_t formattedData[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
-	AddCommasToDecimalResult(unformattedData, formattedData, 1);
+	AddCommasToDecimalResult(unformattedData, formattedData, 1, false);
 
 	ASSERT_STR_EQ("7", formattedData);
 	PASS();
@@ -118,7 +118,7 @@ TEST conv_core_AddCommasToDecimalResult_three_wide(void)
 {
 	uint8_t unformattedData[] = "123";
 	uint8_t formattedData[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
-	AddCommasToDecimalResult(unformattedData, formattedData, 3);
+	AddCommasToDecimalResult(unformattedData, formattedData, 3, false);
 
 	ASSERT_STR_EQ("123", formattedData);
 	PASS();
@@ -128,7 +128,7 @@ TEST conv_core_AddCommasToDecimalResult_four_wide(void)
 {
 	uint8_t unformattedData[] = "1234";
 	uint8_t formattedData[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
-	AddCommasToDecimalResult(unformattedData, formattedData, 4);
+	AddCommasToDecimalResult(unformattedData, formattedData, 4, false);
 
 	ASSERT_STR_EQ("1,234", formattedData);
 	PASS();
@@ -138,7 +138,7 @@ TEST conv_core_AddCommasToDecimalResult_six_wide(void)
 {
 	uint8_t unformattedData[] = "123456";
 	uint8_t formattedData[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
-	AddCommasToDecimalResult(unformattedData, formattedData, 6);
+	AddCommasToDecimalResult(unformattedData, formattedData, 6, false);
 
 	ASSERT_STR_EQ("123,456", formattedData);
 	PASS();
@@ -148,7 +148,7 @@ TEST conv_core_AddCommasToDecimalResult_seven_wide(void)
 {
 	uint8_t unformattedData[] = "1234567";
 	uint8_t formattedData[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
-	AddCommasToDecimalResult(unformattedData, formattedData, 7);
+	AddCommasToDecimalResult(unformattedData, formattedData, 7, false);
 
 	ASSERT_STR_EQ("1,234,567", formattedData);
 	PASS();
@@ -158,7 +158,7 @@ TEST conv_core_AddCommasToDecimalResult_nine_wide(void)
 {
 	uint8_t unformattedData[] = "123456789";
 	uint8_t formattedData[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
-	AddCommasToDecimalResult(unformattedData, formattedData, 9);
+	AddCommasToDecimalResult(unformattedData, formattedData, 9, false);
 
 	ASSERT_STR_EQ("123,456,789", formattedData);
 	PASS();
@@ -168,7 +168,7 @@ TEST conv_core_AddCommasToDecimalResult_ten_wide(void)
 {
 	uint8_t unformattedData[] = "1234567890";
 	uint8_t formattedData[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
-	AddCommasToDecimalResult(unformattedData, formattedData, 10);
+	AddCommasToDecimalResult(unformattedData, formattedData, 10, false);
 
 	ASSERT_STR_EQ("1,234,567,890", formattedData);
 	PASS();
@@ -474,6 +474,19 @@ TEST conv_core_FormatSignedResult_unsigned_eight_wide(void)
 	PASS();
 }
 
+TEST conv_core_FormatSignedResult_leading_negative_at_comma(void)
+{
+	uint8_t inputData[] = { 0xFF, 0xFF, 0xF3, 0xFF };
+	uint8_t outputData[DECIMAL_RESULT_WIDTH] = {};
+	uint8_t outputDataFormatted[DECIMAL_RESULT_WIDTH_FORMATTED] = {};
+	outcome_state outcomeState = FormatSignedResult(inputData, 4, outputData, outputDataFormatted);
+
+	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
+	ASSERT_STR_EQ("-786433", outputData);
+	ASSERT_STR_EQ("-786,433", outputDataFormatted);
+	PASS();
+}
+
 
 // MARK: HexCharForNum
 
@@ -580,7 +593,7 @@ TEST conv_core_FormatHexResult_four_wide(void)
 TEST conv_core_FormatAsciiResult_not_ascii_byte(void)
 {
 	uint8_t inputData[] = { 0x10 };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[ASCII_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatAsciiResult(inputData, 1, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Invalid, outcomeState, outcome_stateToString);
@@ -590,7 +603,7 @@ TEST conv_core_FormatAsciiResult_not_ascii_byte(void)
 TEST conv_core_FormatAsciiResult_one_wide(void)
 {
 	uint8_t inputData[] = { 'Z' };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[ASCII_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatAsciiResult(inputData, 1, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
@@ -601,7 +614,7 @@ TEST conv_core_FormatAsciiResult_one_wide(void)
 TEST conv_core_FormatAsciiResult_four_wide(void)
 {
 	uint8_t inputData[] = { 'A', 'B', 'C', 'D' };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[ASCII_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatAsciiResult(inputData, 4, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
@@ -615,7 +628,7 @@ TEST conv_core_FormatAsciiResult_four_wide(void)
 TEST conv_core_FormatUTF8Result_not_utf8_byte(void)
 {
 	uint8_t inputData[] = { 0x10 };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[UTF8_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatUTF8Result(inputData, 1, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Invalid, outcomeState, outcome_stateToString);
@@ -625,7 +638,7 @@ TEST conv_core_FormatUTF8Result_not_utf8_byte(void)
 TEST conv_core_FormatUTF8Result_one_wide(void)
 {
 	uint8_t inputData[] = { 'Z' };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[UTF8_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatUTF8Result(inputData, 1, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
@@ -636,7 +649,7 @@ TEST conv_core_FormatUTF8Result_one_wide(void)
 TEST conv_core_FormatUTF8Result_two_wide(void)
 {
 	uint8_t inputData[] = { 0xC2, 0xA9 };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[UTF8_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatUTF8Result(inputData, 2, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
@@ -647,7 +660,7 @@ TEST conv_core_FormatUTF8Result_two_wide(void)
 TEST conv_core_FormatUTF8Result_three_wide(void)
 {
 	uint8_t inputData[] = { 0xEF, 0xA5, 0x80 };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[UTF8_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatUTF8Result(inputData, 3, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
@@ -658,7 +671,7 @@ TEST conv_core_FormatUTF8Result_three_wide(void)
 TEST conv_core_FormatUTF8Result_four_wide(void)
 {
 	uint8_t inputData[] = { 0xF0, 0x90, 0x8C, 0xB8 };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[UTF8_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatUTF8Result(inputData, 4, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
@@ -669,7 +682,7 @@ TEST conv_core_FormatUTF8Result_four_wide(void)
 TEST conv_core_FormatUTF8Result_multichar(void)
 {
 	uint8_t inputData[] = { 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF };
-	uint8_t outputData[STRING_RESULT_WIDTH] = {};
+	uint8_t outputData[UTF8_RESULT_WIDTH] = {};
 	outcome_state outcomeState = FormatUTF8Result(inputData, 15, outputData);
 
 	ASSERT_ENUM_EQ(Outcome_Valid, outcomeState, outcome_stateToString);
@@ -726,6 +739,7 @@ SUITE(conv_core)
 	RUN_TEST(conv_core_FormatSignedResult_max_eight_wide);
 	RUN_TEST(conv_core_FormatSignedResult_min_eight_wide);
 	RUN_TEST(conv_core_FormatSignedResult_unsigned_eight_wide);
+	RUN_TEST(conv_core_FormatSignedResult_leading_negative_at_comma);
 
 	RUN_TEST(conv_core_HexCharForNum_int);
 	RUN_TEST(conv_core_HexCharForNum_char);

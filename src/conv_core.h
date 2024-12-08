@@ -100,14 +100,23 @@ outcome_state FormatBinaryResult(uint8_t* inputData, uint32_t inputDataCount, ui
 }
 
 
-void AddCommasToDecimalResult(uint8_t* outputData, uint8_t* outputDataFormatted, int length)
+void AddCommasToDecimalResult(uint8_t* outputData, uint8_t* outputDataFormatted, int length, bool hasSign)
 {
+	// Don't expect signed
+	if (__builtin_expect(hasSign == true, false))
+	{
+		CopyMemory(outputDataFormatted, outputData, 1);
+		outputData += 1;
+		outputDataFormatted += 1;
+		length -= 1;
+	}
+
 	while (length > 0)
 	{
 		uint_fast8_t mod = length % 3;
 		uint_fast8_t copyCount = 0;
 
-		if (__builtin_expect(mod == 0, 1))
+		if (__builtin_expect(mod == 0, true))
 		{
 			copyCount = 3;
 		}
@@ -160,7 +169,7 @@ outcome_state FormatDecimalResult(uint8_t* inputData, uint32_t inputDataCount, u
 			return Outcome_Invalid;
 		}
 
-		AddCommasToDecimalResult(outputData, outputDataFormatted, length);
+		AddCommasToDecimalResult(outputData, outputDataFormatted, length, false);
 	}
 	else if (inputDataCount <= 4)
 	{
@@ -172,7 +181,7 @@ outcome_state FormatDecimalResult(uint8_t* inputData, uint32_t inputDataCount, u
 		{
 			return Outcome_Invalid;
 		}
-		AddCommasToDecimalResult(outputData, outputDataFormatted, length);
+		AddCommasToDecimalResult(outputData, outputDataFormatted, length, false);
 	}
 	else if (inputDataCount <= 8)
 	{
@@ -184,7 +193,7 @@ outcome_state FormatDecimalResult(uint8_t* inputData, uint32_t inputDataCount, u
 		{
 			return Outcome_Invalid;
 		}
-		AddCommasToDecimalResult(outputData, outputDataFormatted, length);
+		AddCommasToDecimalResult(outputData, outputDataFormatted, length, false);
 	}
 	else
 	{
@@ -225,7 +234,7 @@ outcome_state FormatSignedResult(uint8_t* inputData, uint32_t inputDataCount, ui
 			return Outcome_Invalid;
 		}
 
-		AddCommasToDecimalResult(outputData, outputDataFormatted, length);
+		AddCommasToDecimalResult(outputData, outputDataFormatted, length, true);
 	}
 	else if ((inputDataCount == 4) && (inputData[3] & 0x80))
 	{
@@ -237,7 +246,7 @@ outcome_state FormatSignedResult(uint8_t* inputData, uint32_t inputDataCount, ui
 		{
 			return Outcome_Invalid;
 		}
-		AddCommasToDecimalResult(outputData, outputDataFormatted, length);
+		AddCommasToDecimalResult(outputData, outputDataFormatted, length, true);
 	}
 	else if ((inputDataCount == 8) && (inputData[7] & 0x80))
 	{
@@ -249,7 +258,7 @@ outcome_state FormatSignedResult(uint8_t* inputData, uint32_t inputDataCount, ui
 		{
 			return Outcome_Invalid;
 		}
-		AddCommasToDecimalResult(outputData, outputDataFormatted, length);
+		AddCommasToDecimalResult(outputData, outputDataFormatted, length, true);
 	}
 	else
 	{
