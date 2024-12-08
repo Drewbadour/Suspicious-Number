@@ -33,9 +33,14 @@
 #define HEX_PREFIX "0x"
 
 // One char per byte + quotes
-#define STRING_RESULT_WIDTH (MAX_BYTES + 3)
-#define STRING_TITLE "ASCII String"
-#define STRING_UID "ascii"
+#define ASCII_RESULT_WIDTH (MAX_BYTES + 3)
+#define ASCII_TITLE "ASCII String"
+#define ASCII_UID "ascii"
+
+// Length + quotes
+#define UTF8_RESULT_WIDTH (MAX_BYTES + 3)
+#define UTF8_TITLE "UTF-8 String"
+#define UTF8_UID "utf8"
 
 #define UINT8_ARR_RESULT_WIDTH_FORMATTED (MAX_BYTES * 8)
 #define UINT8_ARR_RESULT_WIDTH (MAX_BYTES * 8)
@@ -342,11 +347,73 @@ outcome_state FormatAsciiResult(uint8_t* inputData, uint32_t inputDataCount, uin
 	return Outcome_Valid;
 }
 
+outcome_state FormatUTF8Result(uint8_t* inputData, uint32_t inputDataCount, uint8_t* outputData)
+{
+	uint32_t outputIndex = 2;
+	outputData[0] = '\\';
+	outputData[1] = '"';
+
+	for (uint32_t inputIndex = 0; inputIndex < inputDataCount;)
+	{
+		if ((inputData[inputIndex] >= ' ') && (inputData[inputIndex] <= '~'))
+		{
+			CopyMemory(outputData + outputIndex, inputData + inputIndex, 1);
+			outputIndex += 1;
+			inputIndex += 1;
+		}
+		else if ((inputData[inputIndex] & 0xE0) == 0xC0)
+		{
+			if ((inputData[inputIndex + 1] & 0xC0) != 0x80)
+			{
+				return Outcome_Invalid;
+			}
+
+			CopyMemory(outputData + outputIndex, inputData + inputIndex, 2);
+			outputIndex += 2;
+			inputIndex += 2;
+		}
+		else if ((inputData[inputIndex] & 0xF0) == 0xE0)
+		{
+			if (((inputData[inputIndex + 1] & 0xC0) != 0x80) ||
+				((inputData[inputIndex + 2] & 0xC0) != 0x80))
+			{
+				return Outcome_Invalid;
+			}
+
+			CopyMemory(outputData + outputIndex, inputData + inputIndex, 3);
+			outputIndex += 3;
+			inputIndex += 3;
+		}
+		else if ((inputData[inputIndex] & 0xF8) == 0xF0)
+		{
+			if (((inputData[inputIndex + 1] & 0xC0) != 0x80) ||
+				((inputData[inputIndex + 2] & 0xC0) != 0x80) ||
+				((inputData[inputIndex + 3] & 0xC0) != 0x80))
+			{
+				return Outcome_Invalid;
+			}
+
+			CopyMemory(outputData + outputIndex, inputData + inputIndex, 4);
+			outputIndex += 4;
+			inputIndex += 4;
+		}
+		else
+		{
+			return Outcome_Invalid;
+		}
+	}
+
+	outputData[outputIndex] = '\\';
+	outputData[outputIndex + 1] = '"';
+	outputData[outputIndex + 2] = '\0';
+	return Outcome_Valid;
+}
+
 outcome_state FormatAndPrintOutputs(uint8_t* parsedInput, uint32_t parsedNumBytes)
 {
 	outcome_state outcomeState = Outcome_Valid;
 	// NOTE(Drew): We can have one less here since it's impossible to have signed AND ASCII.
-	alfred_response responses[4] = {};
+	alfred_response responses[5] = {};
 	uint32_t numResponses = 0;
 
 	uint8_t binaryUnformatted[BINARY_RESULT_WIDTH] = {};
@@ -401,14 +468,26 @@ outcome_state FormatAndPrintOutputs(uint8_t* parsedInput, uint32_t parsedNumByte
 		++numResponses;
 	}
 
-	uint8_t asciiString[STRING_RESULT_WIDTH] = {};
+	uint8_t asciiString[ASCII_RESULT_WIDTH] = {};
 	outcomeState = FormatAsciiResult(parsedInput, parsedNumBytes, asciiString);
 	if (outcomeState == Outcome_Valid)
 	{
 		responses[numResponses].title = (char*)asciiString;
-		responses[numResponses].subtitle = STRING_TITLE;
-		responses[numResponses].uid = STRING_UID;
+		responses[numResponses].subtitle = ASCII_TITLE;
+		responses[numResponses].uid = ASCII_UID;
 		responses[numResponses].arg = (char*)asciiString;
+		responses[numResponses].valid = true;
+		++numResponses;
+	}
+
+	uint8_t utf8String[UTF8_RESULT_WIDTH] = {};
+	outcomeState = FormatUTF8Result(parsedInput, parsedNumBytes, utf8String);
+	if (outcomeState == Outcome_Valid)
+	{
+		responses[numResponses].title = (char*)utf8String;
+		responses[numResponses].subtitle = UTF8_TITLE;
+		responses[numResponses].uid = UTF8_UID;
+		responses[numResponses].arg = (char*)utf8String;
 		responses[numResponses].valid = true;
 		++numResponses;
 	}
