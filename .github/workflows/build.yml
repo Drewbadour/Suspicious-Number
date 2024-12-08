@@ -2,14 +2,24 @@ name: Build
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - '.github/workflows/build.yml'
   pull_request:
-    branches: [ $default-branch ]
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - '.github/workflows/build.yml'
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -26,4 +36,5 @@ jobs:
     - name: Archive workflow
       uses: actions/upload-artifact@v4
       with:
+        name: Workflow
         path: suspicious-number.alfredworkflow
